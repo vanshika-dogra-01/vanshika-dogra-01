@@ -1,1 +1,335 @@
-createkswebtech
+<div class="location_cust color-{{ section.settings.color-scheme }} gradient" style="padding-top:{{ section.settings.padding-top }}px; padding-bottom:{{ section.settings.padding-bottom }}px;">
+<div class="page-width">
+
+  <div class="location-head">
+<h2 class="location-heading">
+{{ section.settings.location-heading }}
+</h2>
+    <div class="location-description">
+{{ section.settings.location-description }}
+    </div>
+  </div>
+
+<div class="location-row">
+  <!-- Initialize left and right containers -->
+  <div class="location-left-block">
+  <div class="location-left">
+    {% for block in section.blocks %}
+      {% if block.type == 'icon-with-text' %}
+        <!-- Wrap icon-with-text blocks for left side -->
+        <div class="location-icon-text-wrapper">
+          <div class="location-image">
+            {% if block.settings.image_icon != blank %}
+              <img src="{{ block.settings.image_icon | img_url: 'master' }}" width="{{ block.settings.image-width }}px" height="{{ block.settings.image-height }}px" loading="lazy">
+            {% elsif block.settings.svg_code != blank %}
+              <div class="svg-icon">
+                {{ block.settings.svg_code }}
+              </div>
+            {% endif %}
+            <style>
+
+        </style>
+          </div>
+          
+
+          <div class="location-inner-content">
+            <h4>{{ block.settings.heading-icon }}</h4>
+            <div class="location-description">{{ block.settings.description-icon }}</div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+</div>
+    
+    <!-- Add "Share Direction" button to the left side -->
+    {% for block in section.blocks %}
+      {% case block.type %}
+        {% when 'map' %}
+        <div class="share-directions-row">
+          <button id="share-direction" class="share-direction-btn" data-map-address="{{ block.settings.map_address | url_encode }}">Share Direction</button>
+          <!-- Add a hidden message below the button -->
+          <div id="copied-message" class="copied-message" style="display:none;">Copied to clipboard!</div>
+        </div>
+      {% endcase %}
+    {% endfor %}
+  
+  </div>
+
+  <div class="location-right">
+    {% for block in section.blocks %}
+      {% case block.type %}
+        {% when 'map' %}
+          <div class="location-map-wrapper">
+            <div class="location-map">
+              {% if block.settings.map_address != blank %}
+                <iframe 
+                  src="https://www.google.com/maps?q={{ block.settings.map_address | url_encode }}&output=embed" 
+                  width="100%" 
+                  height="{{ block.settings.height }}px"
+                  frameborder="0" 
+                  style="border:0;" 
+                  allowfullscreen="" 
+                  loading="lazy">
+                </iframe>
+              {% else %}
+                <p>No map location provided.</p>
+              {% endif %}
+            </div>
+          </div>
+      {% endcase %}
+    {% endfor %}
+  </div>
+</div>
+
+<!-- jQuery Script for the "Share Direction" functionality -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Handle the click event for the "Share Direction" button
+    $('#share-direction').click(function(e) {
+      e.preventDefault(); // Prevent the default behavior of the button (e.g., refreshing)
+
+      // Get the map address stored in the data attribute
+      var mapAddress = $(this).data('map-address');
+      
+      // Create the Google Maps link with directions
+      var mapLink = "https://www.google.com/maps?q=" + mapAddress + "&directions=true";
+
+      // Create a temporary input element to hold the link
+      var $tempInput = $('<input>');
+      $('body').append($tempInput);
+
+      // Set the value of the input element to the map link
+      $tempInput.val(mapLink).select();
+
+      // Copy the text to the clipboard
+      document.execCommand('copy');
+
+      // Remove the temporary input element from the DOM
+      $tempInput.remove();
+
+      // Show the "Copied to clipboard" message below the button
+      $('#copied-message').fadeIn().delay(2000).fadeOut(); // Show message for 2 seconds
+    });
+  });
+</script>
+
+<!-- Optional CSS for styling the copied message -->
+<style>
+  .copied-message {
+    color: green;
+    font-size: 14px;
+    margin-top: 5px;
+    font-weight: bold;
+  }
+</style>
+
+
+
+</div>
+</div>
+
+{% schema %}
+{
+  "name": "Location",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color-scheme",
+      "label": "Color"
+    },
+    {
+      "type": "richtext",
+      "id": "location-heading",
+      "label": "Heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "location-description",
+      "label": "Description"
+    },
+    {
+      "type": "range",
+      "id": "padding-top",
+      "default": 0,
+      "max": 100,
+      "min": 0,
+      "step": 2,
+    "unit": "px",
+      "label": "Padidng-top"
+    },
+        {
+      "type": "range",
+      "id": "padding-bottom",
+      "default": 0,
+      "max": 100,
+      "min": 0,
+      "step": 2,
+    "unit": "px",
+      "label": "Padidng-bottom"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "icon-with-text",
+      "name": "Icon With Text",
+      "settings": [
+       {
+  "type": "image_picker",
+  "label": "Image Icon",
+  "id": "image_icon",
+},
+        {
+          "type": "range",
+          "id": "image-width",
+          "label": "Image-width",
+          "default": 0,
+          "max": 50,
+          "min": 0,
+          "step": 2,
+          "unit": "px"
+        },
+           {
+          "type": "range",
+          "id": "image-height",
+          "label": "Image-height",
+          "default": 0,
+          "max": 50,
+          "min": 0,
+          "step": 2,
+          "unit": "px"
+        },
+{
+  "type": "textarea",
+  "label": "SVG Code",
+  "id": "svg_code",
+},
+
+        {
+          "type": "richtext",
+          "id": "heading-icon",
+          "label": "Heading"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "description-icon",
+          "label": "Description Icon"
+        }
+      ]
+    },
+    {
+      "type": "map",
+      "name": "Map",
+      "settings": [
+        {
+  "type": "text",
+  "label": "Map Address",
+  "id": "map_address",
+},
+        {
+          "type": "range",
+          "id": "height",
+          "label": "Height",
+          "max": 700,
+          "min": 0,
+          "default": 0,
+          "step": 20,
+          "unit": "px"
+        }
+
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Location",
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+.location-row {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    align-items: center;
+}
+.location-left {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    row-gap: 20px;
+}
+.location-left {
+    display: flex;
+    gap: 40px;
+    row-gap: 20px;
+    flex-direction: column;
+}
+  .location-right {
+    max-width: 50%;
+    width: 100%;
+}
+  .location-inner-content h4 p {
+    color: #373737;
+    font-weight: 500;
+    font-size: 16px;
+    margin: 0;
+}
+  .location-inner-content h4 {
+    margin: 0;
+}
+  .location-image {
+    height: 20px;
+    width: 20px;
+}
+.share-direction-btn {
+    width: fit-content;
+    padding: 15px 60px;
+    background: #ac8f71;
+    border: 1px solid;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+  .location-icon-text-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    height: fit-content;
+}
+  .location-left-block {
+    display: flex;
+    flex-direction: column;
+    row-gap: 30px;
+    max-width: 50%;
+    width: 100%;
+}
+
+  /* @media (max-width:990px) and min-width:(749px){
+    .share-direction-btn {
+    width: 100%;
+}
+  } */
+  @media (max-width:749px){
+.location-row {
+    flex-direction: column-reverse;
+    row-gap: 40px;
+}
+  .location-right {
+    max-width: 100%;
+    width: 100%;
+}
+  .location-left-block {
+    max-width: 100%;
+    width: 100%;
+}}
+
+  @media (max=-width:550px)
+</style>
